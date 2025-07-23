@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic 8-Ball</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .question-section {
+            margin-bottom: 40px;
+        }
+
+        .question-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .question-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .eight-ball-container {
+            position: relative;
+            margin: 40px auto;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .eight-ball {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle at 30% 30%, #333, #000);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            margin: 0 auto;
+        }
+
+        .eight-ball:hover {
+            transform: scale(1.05);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+        }
+
+        .eight-ball.shaking {
+            animation: shake 0.8s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            10% { transform: rotate(-10deg) scale(1.1); }
+            20% { transform: rotate(10deg) scale(1.1); }
+            30% { transform: rotate(-10deg) scale(1.1); }
+            40% { transform: rotate(10deg) scale(1.1); }
+            50% { transform: rotate(-5deg) scale(1.1); }
+            60% { transform: rotate(5deg) scale(1.1); }
+            70% { transform: rotate(-5deg) scale(1.1); }
+            80% { transform: rotate(5deg) scale(1.1); }
+            90% { transform: rotate(-2deg) scale(1.05); }
+        }
+
+        .eight-number {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: black;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .answer-window {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+
+        .answer-window.show {
+            opacity: 1;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .shake-instruction {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .history-section {
+            margin-top: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .history-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .history-item.positive {
+            border-left-color: #4ade80;
+        }
+
+        .history-item.negative {
+            border-left-color: #ef4444;
+        }
+
+        .history-item.uncertain {
+            border-left-color: #facc15;
+        }
+
+        .question {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #e0e0e0;
+        }
+
+        .answer {
+            color: #b0b0b0;
+            font-style: italic;
+        }
+
+        .clear-history {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .clear-history:hover {
+            background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .eight-ball {
+                width: 200px;
+                height: 200px;
+            }
+
+            .eight-number {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+                top: 40px;
+            }
+
+            .answer-window {
+                width: 100px;
+                height: 100px;
+                bottom: 50px;
+                font-size: 0.8rem;
+            }
+
+            .question-input {
+                font-size: 1rem;
+                padding: 12px 18px;
+            }
+
+            .history-section {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .eight-ball {
+                width: 180px;
+                height: 180px;
+            }
+
+            .eight-number {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+                top: 35px;
+            }
+
+            .answer-window {
+                width: 90px;
+                height: 90px;
+                bottom: 45px;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        .history-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎱 Magic 8-Ball</h1>
+        
+        <div class="question-section">
+            <input type="text" class="question-input" placeholder="Ask the magic 8-ball a question..." maxlength="200">
+        </div>
+
+        <div class="eight-ball-container">
+            <div class="eight-ball" id="eightBall">
+                <div class="eight-number">8</div>
+                <div class="answer-window" id="answerWindow"></div>
+            </div>
+            <div class="shake-instruction">Click or shake the 8-ball for your answer!</div>
+        </div>
+
+        <div class="history-section">
+            <h3 class="history-title">Question History</h3>
+            <div class="history-list" id="historyList">
+                <p style="text-align: center; opacity: 0.6; font-style: italic;">No questions asked yet...</p>
+            </div>
+            <button class="clear-history" id="clearHistory">Clear History</button>
+        </div>
+    </div>
+
+    <script>
+        class Magic8Ball {
+            constructor() {
+                this.answers = {
+                    positive: [
+                        "It is certain",
+                        "Without a doubt",
+                        "Yes definitely",
+                        "You may rely on it",
+                        "As I see it, yes",
+                        "Most likely",
+                        "Outlook good",
+                        "Yes",
+                        "Signs point to yes",
+                        "Absolutely"
+                    ],
+                    negative: [
+                        "Don't count on it",
+                        "My reply is no",
+                        "My sources say no",
+                        "Outlook not so good",
+                        "Very doubtful",
+                        "No way",
+                        "Absolutely not",
+                        "The answer is no",
+                        "Negative",
+                        "Not a chance"
+                    ],
+                    uncertain: [
+                        "Reply hazy, try again",
+                        "Ask again later",
+                        "Better not tell you now",
+                        "Cannot predict now",
+                        "Concentrate and ask again",
+                        "Maybe",
+                        "I'm not sure",
+                        "It's unclear",
+                        "Time will tell",
+                        "Hard to say"
+                    ]
+                };
+
+                this.history = JSON.parse(localStorage.getItem('magic8ballHistory') || '[]');
+                this.isShaking = false;
+
+                this.initializeElements();
+                this.bindEvents();
+                this.displayHistory();
+            }
+
+            initializeElements() {
+                this.eightBall = document.getElementById('eightBall');
+                this.answerWindow = document.getElementById('answerWindow');
+                this.questionInput = document.querySelector('.question-input');
+                this.historyList = document.getElementById('historyList');
+                this.clearHistoryBtn = document.getElementById('clearHistory');
+            }
+
+            bindEvents() {
+                this.eightBall.addEventListener('click', () => this.shakeAndAnswer());
+                this.questionInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.shakeAndAnswer();
+                    }
+                });
+                this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+
+                // Add mobile shake detection
+                if (window.DeviceMotionEvent) {
+                    window.addEventListener('devicemotion', (e) => this.handleDeviceMotion(e));
+                }
+            }
+
+            handleDeviceMotion(event) {
+                const acceleration = event.accelerationIncludingGravity;
+                const threshold = 15;
+                
+                if (acceleration && 
+                    (Math.abs(acceleration.x) > threshold || 
+                     Math.abs(acceleration.y) > threshold || 
+                     Math.abs(acceleration.z) > threshold)) {
+                    
+                    if (!this.isShaking && this.questionInput.value.trim()) {
+                        this.shakeAndAnswer();
+                    }
+                }
+            }
+
+            shakeAndAnswer() {
+                if (this.isShaking) return;
+
+                const question = this.questionInput.value.trim();
+                if (!question) {
+                    this.questionInput.focus();
+                    this.questionInput.placeholder = "Please enter a question first!";
+                    setTimeout(() => {
+                        this.questionInput.placeholder = "Ask the magic 8-ball a question...";
+                    }, 2000);
+                    return;
+                }
+
+                this.isShaking = true;
+                this.eightBall.classList.add('shaking');
+                this.answerWindow.classList.remove('show');
+
+                setTimeout(() => {
+                    const answer = this.getRandomAnswer();
+                    this.displayAnswer(answer.text, answer.type);
+                    this.addToHistory(question, answer.text, answer.type);
+                    
+                    this.eightBall.classList.remove('shaking');
+                    this.isShaking = false;
+                    this.questionInput.value = '';
+                }, 800);
+            }
+
+            getRandomAnswer() {
+                const types = ['positive', 'negative', 'uncertain'];
+                const weights = [0.4, 0.3, 0.3]; // 40% positive, 30% negative, 30% uncertain
+                
+                const randomValue = Math.random();
+                let cumulativeWeight = 0;
+                let selectedType = 'uncertain';
+
+                for (let i = 0; i < types.length; i++) {
+                    cumulativeWeight += weights[i];
+                    if (randomValue <= cumulativeWeight) {
+                        selectedType = types[i];
+                        break;
+                    }
+                }
+
+                const answersOfType = this.answers[selectedType];
+                const randomAnswer = answersOfType[Math.floor(Math.random() * answersOfType.length)];
+
+                return {
+                    text: randomAnswer,
+                    type: selectedType
+                };
+            }
+
+            displayAnswer(text, type) {
+                this.answerWindow.textContent = text;
+                this.answerWindow.className = `answer-window show ${type}`;
+            }
+
+            addToHistory(question, answer, type) {
+                const historyItem = {
+                    question,
+                    answer,
+                    type,
+                    timestamp: new Date().toLocaleString()
+                };
+
+                this.history.unshift(historyItem);
+                
+                // Keep only the last 20 items
+                if (this.history.length > 20) {
+                    this.history = this.history.slice(0, 20);
+                }
+
+                this.saveHistory();
+                this.displayHistory();
+            }
+
+            displayHistory() {
+                if (this.history.length === 0) {
+                    this.historyList.innerHTML = '<p style="text-align: center; opacity: 0.6; font-style: italic;">No questions asked yet...</p>';
+                    return;
+                }
+
+                this.historyList.innerHTML = this.history.map(item => `
+                    <div class="history-item ${item.type}">
+                        <div class="question">Q: ${item.question}</div>
+                        <div class="answer">A: ${item.answer}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">${item.timestamp}</div>
+                    </div>
+                `).join('');
+            }
+
+            clearHistory() {
+                if (confirm('Are you sure you want to clear all question history?')) {
+                    this.history = [];
+                    this.saveHistory();
+                    this.displayHistory();
+                }
+            }
+
+            saveHistory() {
+                localStorage.setItem('magic8ballHistory', JSON.stringify(this.history));
+            }
+        }
+
+        // Initialize the Magic 8-Ball when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new Magic8Ball();
+        });
+
+        // Add some fun animations on page load
+        window.addEventListener('load', () => {
+            document.querySelector('.eight-ball').style.animation = 'fadeInUp 1s ease';
+            
+            // Add subtle floating animation
+            setInterval(() => {
+                const ball = document.querySelector('.eight-ball');
+                if (!ball.classList.contains('shaking')) {
+                    ball.style.transform = `translateY(${Math.sin(Date.now() * 0.001) * 3}px)`;
+                }
+            }, 16);
+        });
+    </script>
+</body>
+</html>

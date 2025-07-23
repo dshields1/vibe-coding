@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliment Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .compliment-display {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .compliment-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .compliment-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+            opacity: 0;
+        }
+
+        .compliment-card.new::before {
+            animation: shimmer 0.8s ease-out;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+        }
+
+        .compliment-text {
+            font-size: 1.8em;
+            font-weight: bold;
+            line-height: 1.4;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .category-btn {
+            padding: 12px 8px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .category-btn.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-size: 18px;
+            padding: 18px 35px;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .history {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .history h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .history-item .compliment {
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+
+        .history-item .category {
+            font-size: 12px;
+            color: #666;
+            background: #f1f3f4;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .share-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .share-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .share-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .share-text {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-style: italic;
+            border: 2px dashed #dee2e6;
+        }
+
+        .close-popup {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .compliment-text {
+                font-size: 1.4em;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💖 Compliment Generator</h1>
+        
+        <div class="compliment-display">
+            <div class="compliment-card" id="complimentCard">
+                <div class="compliment-text" id="complimentText">
+                    Click "Generate Compliment" to receive a wonderful compliment!
+                </div>
+                <div class="category-badge" id="categoryBadge" style="display: none;">
+                    General
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn-primary" onclick="generateCompliment()">
+                ✨ Generate Compliment
+            </button>
+            <button class="btn-success" onclick="shareCompliment()">
+                📤 Share Compliment
+            </button>
+            <button class="btn-info" onclick="copyCompliment()">
+                📋 Copy to Clipboard
+            </button>
+            <button class="btn-secondary" onclick="clearHistory()">
+                🗑️ Clear History
+            </button>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>Choose Categories</h3>
+                <div class="category-grid">
+                    <button class="category-btn active" data-category="all">All Categories</button>
+                    <button class="category-btn" data-category="appearance">Appearance</button>
+                    <button class="category-btn" data-category="personality">Personality</button>
+                    <button class="category-btn" data-category="skills">Skills</button>
+                    <button class="category-btn" data-category="motivational">Motivational</button>
+                    <button class="category-btn" data-category="creative">Creative</button>
+                    <button class="category-btn" data-category="friendship">Friendship</button>
+                    <button class="category-btn" data-category="professional">Professional</button>
+                </div>
+            </div>
+            
+            <div class="history">
+                <h3>Compliment History</h3>
+                <div class="history-list" id="historyList">
+                    <p style="text-align: center; color: #666; font-style: italic;">
+                        Your compliment history will appear here
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Popup -->
+    <div class="share-popup" id="sharePopup">
+        <div class="share-content">
+            <button class="close-popup" onclick="closeSharePopup()">×</button>
+            <h3>Share Your Compliment</h3>
+            <div class="share-text" id="shareText"></div>
+            <div class="action-buttons">
+                <button class="btn-info" onclick="copyShareText()">Copy Text</button>
+                <button class="btn-success" onclick="shareToSocial('twitter')">Share on Twitter</button>
+                <button class="btn-secondary" onclick="closeSharePopup()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const compliments = {
+            appearance: [
+                "You have such a warm and welcoming smile!",
+                "Your style is absolutely incredible and uniquely you!",
+                "You radiate beauty from the inside out!",
+                "Your eyes are so expressive and captivating!",
+                "You have such great fashion sense!",
+                "Your hair looks amazing today!",
+                "You have perfect posture - you carry yourself with such confidence!",
+                "Your skin is absolutely glowing!",
+                "You have such a kind and gentle face!",
+                "Your overall appearance is so polished and put-together!"
+            ],
+            personality: [
+                "You have such a wonderful sense of humor!",
+                "Your kindness makes everyone around you feel special!",
+                "You're incredibly thoughtful and considerate!",
+                "Your positive energy is absolutely contagious!",
+                "You have such a compassionate heart!",
+                "Your authenticity is refreshing and inspiring!",
+                "You're amazingly resilient and strong!",
+                "Your empathy makes you such a great friend!",
+                "You have an incredible ability to make others feel heard!",
+                "Your optimism lights up every room you enter!"
+            ],
+            skills: [
+                "You're incredibly talented at everything you do!",
+                "Your problem-solving skills are absolutely impressive!",
+                "You have such great attention to detail!",
+                "Your creativity knows no bounds!",
+                "You're a natural leader and people gravitate toward you!",
+                "Your communication skills are exceptional!",
+                "You have an amazing ability to learn new things quickly!",
+                "Your work ethic is truly admirable!",
+                "You're incredibly resourceful and innovative!",
+                "Your skills and expertise are genuinely impressive!"
+            ],
+            motivational: [
+                "You're capable of achieving anything you set your mind to!",
+                "Your potential is absolutely limitless!",
+                "You make a real difference in this world!",
+                "Your dreams are valid and achievable!",
+                "You're stronger than you know and more capable than you imagine!",
+                "You have the power to overcome any challenge!",
+                "Your journey is unique and valuable!",
+                "You're exactly where you need to be right now!",
+                "Your efforts are making a positive impact!",
+                "You're growing and improving every single day!"
+            ],
+            creative: [
+                "Your imagination is absolutely brilliant!",
+                "You have such a unique and artistic perspective!",
+                "Your creative ideas are always so innovative!",
+                "You have an incredible eye for design and aesthetics!",
+                "Your artistic talents are truly remarkable!",
+                "You bring such creativity to everything you touch!",
+                "Your ability to think outside the box is amazing!",
+                "You have such a wonderful creative spirit!",
+                "Your artistic vision is truly inspiring!",
+                "You create beauty wherever you go!"
+            ],
+            friendship: [
+                "You're such a loyal and dependable friend!",
+                "Your friendship means the world to so many people!",
+                "You're always there when someone needs you!",
+                "You make everyone feel included and valued!",
+                "Your friendship is a true gift!",
+                "You're the kind of friend everyone wishes they had!",
+                "You bring so much joy and laughter to your friendships!",
+                "Your support and encouragement mean everything!",
+                "You're incredibly trustworthy and reliable!",
+                "You have such a special way of making people feel loved!"
+            ],
+            professional: [
+                "Your professionalism is exemplary!",
+                "You're a valuable asset to any team!",
+                "Your work quality is consistently outstanding!",
+                "You handle challenges with grace and competence!",
+                "Your dedication to excellence is inspiring!",
+                "You're a natural collaborator and team player!",
+                "Your leadership skills are truly impressive!",
+                "You bring such innovative ideas to your work!",
+                "Your work ethic is absolutely admirable!",
+                "You're the kind of colleague everyone respects and admires!"
+            ]
+        };
+
+        let currentCompliment = '';
+        let currentCategory = 'all';
+        let selectedCategories = new Set(['all']);
+        let history = JSON.parse(localStorage.getItem('complimentHistory') || '[]');
+
+        function initializeCategories() {
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            categoryButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const category = btn.dataset.category;
+                    
+                    if (category === 'all') {
+                        // If "All Categories" is clicked, deselect all others
+                        selectedCategories.clear();
+                        selectedCategories.add('all');
+                        categoryButtons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    } else {
+                        // If any specific category is clicked, deselect "All Categories"
+                        selectedCategories.delete('all');
+                        document.querySelector('[data-category="all"]').classList.remove('active');
+                        
+                        if (selectedCategories.has(category)) {
+                            selectedCategories.delete(category);
+                            btn.classList.remove('active');
+                        } else {
+                            selectedCategories.add(category);
+                            btn.classList.add('active');
+                        }
+                        
+                        // If no categories selected, revert to "All Categories"
+                        if (selectedCategories.size === 0) {
+                            selectedCategories.add('all');
+                            document.querySelector('[data-category="all"]').classList.add('active');
+                        }
+                    }
+                });
+            });
+        }
+
+        function generateCompliment() {
+            let availableCompliments = [];
+            
+            if (selectedCategories.has('all')) {
+                // Get compliments from all categories
+                Object.values(compliments).forEach(categoryCompliments => {
+                    availableCompliments.push(...categoryCompliments);
+                });
+                currentCategory = 'All Categories';
+            } else {
+                // Get compliments from selected categories
+                selectedCategories.forEach(category => {
+                    if (compliments[category]) {
+                        availableCompliments.push(...compliments[category]);
+                    }
+                });
+                currentCategory = Array.from(selectedCategories).join(', ');
+            }
+            
+            if (availableCompliments.length === 0) {
+                return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availableCompliments.length);
+            currentCompliment = availableCompliments[randomIndex];
+            
+            const complimentCard = document.getElementById('complimentCard');
+            const complimentText = document.getElementById('complimentText');
+            const categoryBadge = document.getElementById('categoryBadge');
+            
+            // Add shimmer effect
+            complimentCard.classList.add('new');
+            setTimeout(() => complimentCard.classList.remove('new'), 800);
+            
+            complimentText.textContent = currentCompliment;
+            categoryBadge.textContent = currentCategory;
+            categoryBadge.style.display = 'inline-block';
+            
+            // Add to history
+            addToHistory(currentCompliment, currentCategory);
+        }
+
+        function addToHistory(compliment, category) {
+            const historyItem = {
+                compliment: compliment,
+                category: category,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            history.unshift(historyItem);
+            
+            // Keep only last 10 compliments
+            if (history.length > 10) {
+                history = history.slice(0, 10);
+            }
+            
+            localStorage.setItem('complimentHistory', JSON.stringify(history));
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; font-style: italic;">Your compliment history will appear here</p>';
+                return;
+            }
+            
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <div class="compliment">"${item.compliment}"</div>
+                    <div class="category">${item.category}</div>
+                </div>
+            `).join('');
+        }
+
+        function shareCompliment() {
+            if (!currentCompliment) {
+                alert('Please generate a compliment first!');
+                return;
+            }
+            
+            document.getElementById('shareText').textContent = `"${currentCompliment}" - A lovely compliment from the Compliment Generator! 💖`;
+            document.getElementById('sharePopup').style.display = 'flex';
+        }
+
+        function closeSharePopup() {
+            document.getElementById('sharePopup').style.display = 'none';
+        }
+
+        function copyCompliment() {
+            if (!currentCompliment) {
+                alert('Please generate a compliment first!');
+                return;
+            }
+            
+            navigator.clipboard.writeText(currentCompliment).then(() => {
+                alert('Compliment copied to clipboard! 📋');
+            }).catch(() => {
+                alert('Unable to copy to clipboard');
+            });
+        }
+
+        function copyShareText() {
+            const shareText = document.getElementById('shareText').textContent;
+            navigator.clipboard.writeText(shareText).then(() => {
+                alert('Share text copied to clipboard! 📋');
+            }).catch(() => {
+                alert('Unable to copy to clipboard');
+            });
+        }
+
+        function shareToSocial(platform) {
+            const shareText = encodeURIComponent(`"${currentCompliment}" - A lovely compliment! 💖`);
+            let url = '';
+            
+            switch (platform) {
+                case 'twitter':
+                    url = `https://twitter.com/intent/tweet?text=${shareText}`;
+                    break;
+            }
+            
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear your compliment history?')) {
+                history = [];
+                localStorage.removeItem('complimentHistory');
+                updateHistoryDisplay();
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            initializeCategories();
+            updateHistoryDisplay();
+        });
+
+        // Close popup when clicking outside
+        document.getElementById('sharePopup').addEventListener('click', (e) => {
+            if (e.target.id === 'sharePopup') {
+                closeSharePopup();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                generateCompliment();
+            }
+        });
+    </script>
+</body>
+</html>

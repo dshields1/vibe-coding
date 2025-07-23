@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+        }
+        .category {
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .card a {
+            text-decoration: none;
+            color: #3498db;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .card a:hover {
+            color: #2980b9;
+        }
+        .description {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vibe Coding</h1>
+
+    <div class="category">
+        <h2>Games</h2>
+        <div class="grid">
+            <div class="card">
+                <a href="memory-game.html">Memory Card Matching</a>
+                <p class="description">Test your memory by matching pairs of cards</p>
+            </div>
+            <div class="card">
+                <a href="tic-tac-toe.html">Tic-Tac-Toe</a>
+                <p class="description">Classic game with AI opponent</p>
+            </div>
+            <div class="card">
+                <a href="maze-generator.html">Maze Generator</a>
+                <p class="description">Generate and solve random mazes</p>
+            </div>
+            <div class="card">
+                <a href="word-scramble.html">Word Scramble</a>
+                <p class="description">Unscramble letters to form words</p>
+            </div>
+            <div class="card">
+                <a href="color-mixing.html">Color Mixing Game</a>
+                <p class="description">Learn color theory through mixing</p>
+            </div>
+            <div class="card">
+                <a href="reaction-time.html">Reaction Time Tester</a>
+                <p class="description">Test your reflexes</p>
+            </div>
+            <div class="card">
+                <a href="simon-says.html">Simon Says</a>
+                <p class="description">Memory sequence game</p>
+            </div>
+            <div class="card">
+                <a href="number-guessing.html">Number Guessing</a>
+                <p class="description">Guess the secret number</p>
+            </div>
+            <div class="card">
+                <a href="rock-paper-scissors.html">Rock Paper Scissors</a>
+                <p class="description">Play against the computer</p>
+            </div>
+            <div class="card">
+                <a href="slot-machine.html">Slot Machine</a>
+                <p class="description">Try your luck with virtual slots</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2>Utilities</h2>
+        <div class="grid">
+            <div class="card">
+                <a href="pomodoro-timer.html">Pomodoro Timer</a>
+                <p class="description">Productivity timer with notifications</p>
+            </div>
+            <div class="card">
+                <a href="color-palette.html">Color Palette Generator</a>
+                <p class="description">Generate beautiful color schemes</p>
+            </div>
+            <div class="card">
+                <a href="password-checker.html">Password Strength Checker</a>
+                <p class="description">Test your password security</p>
+            </div>
+            <div class="card">
+                <a href="markdown-converter.html">Markdown to HTML</a>
+                <p class="description">Convert Markdown to HTML instantly</p>
+            </div>
+            <div class="card">
+                <a href="base64-converter.html">Base64 Encoder/Decoder</a>
+                <p class="description">Encode and decode Base64 strings</p>
+            </div>
+            <div class="card">
+                <a href="unit-converter.html">Unit Converter</a>
+                <p class="description">Convert between different units</p>
+            </div>
+            <div class="card">
+                <a href="tip-calculator.html">Tip Calculator</a>
+                <p class="description">Calculate tips and split bills</p>
+            </div>
+            <div class="card">
+                <a href="name-generator.html">Random Name Generator</a>
+                <p class="description">Generate random names and teams</p>
+            </div>
+            <div class="card">
+                <a href="countdown-timer.html">Countdown Timer</a>
+                <p class="description">Count down to any date</p>
+            </div>
+            <div class="card">
+                <a href="todo-list.html">Todo List</a>
+                <p class="description">Simple todo list with local storage</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="category">
+        <h2>Creative & Fun</h2>
+        <div class="grid">
+            <div class="card">
+                <a href="fortune-cookie.html">Fortune Cookie</a>
+                <p class="description">Get your daily fortune</p>
+            </div>
+            <div class="card">
+                <a href="magic-8ball.html">Magic 8-Ball</a>
+                <p class="description">Ask a question, get an answer</p>
+            </div>
+            <div class="card">
+                <a href="mood-tracker.html">Emoji Mood Tracker</a>
+                <p class="description">Track your mood with emojis</p>
+            </div>
+            <div class="card">
+                <a href="ascii-art.html">ASCII Art Generator</a>
+                <p class="description">Convert text to ASCII art</p>
+            </div>
+            <div class="card">
+                <a href="quote-display.html">Random Quote Display</a>
+                <p class="description">Inspirational quotes generator</p>
+            </div>
+            <div class="card">
+                <a href="dice-roller.html">D&D Dice Roller</a>
+                <p class="description">Roll dice for tabletop games</p>
+            </div>
+            <div class="card">
+                <a href="bingo-generator.html">Bingo Card Generator</a>
+                <p class="description">Create custom bingo cards</p>
+            </div>
+            <div class="card">
+                <a href="decision-wheel.html">Decision Maker Wheel</a>
+                <p class="description">Spin the wheel to make decisions</p>
+            </div>
+            <div class="card">
+                <a href="compliment-generator.html">Compliment Generator</a>
+                <p class="description">Get a nice compliment</p>
+            </div>
+            <div class="card">
+                <a href="horoscope.html">Daily Horoscope</a>
+                <p class="description">Check your daily horoscope</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

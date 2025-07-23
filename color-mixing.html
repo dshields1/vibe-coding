@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Mixing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 52%, #2BFF88 90%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .color-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .color-box {
+            width: 120px;
+            height: 120px;
+            border-radius: 15px;
+            margin: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .color-box:hover {
+            transform: scale(1.05);
+        }
+
+        .operator {
+            font-size: 3em;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+        .target-color {
+            width: 250px;
+            height: 150px;
+            border-radius: 20px;
+            margin: 30px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .target-color::before {
+            content: 'Target Color';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .color-option {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            margin: 0 auto;
+        }
+
+        .color-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-option.selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 3px white, 0 0 0 6px #2BD2FF;
+        }
+
+        button {
+            background: linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(250, 139, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .correct {
+            background: #4caf50;
+            color: white;
+        }
+
+        .incorrect {
+            background: #f44336;
+            color: white;
+        }
+
+        .level-indicator {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Color Mixing Game</h1>
+        <div class="level-indicator">Level <span id="level">1</span></div>
+        
+        <div class="color-display" id="colorEquation">
+            <div class="color-box" id="color1"></div>
+            <div class="operator">+</div>
+            <div class="color-box" id="color2"></div>
+            <div class="operator">=</div>
+            <div class="color-box" style="background: #ddd;">?</div>
+        </div>
+
+        <div class="target-color" id="targetColor"></div>
+        
+        <div class="color-options" id="colorOptions"></div>
+        
+        <button onclick="checkAnswer()">Submit Answer</button>
+        <button onclick="newRound()">New Colors</button>
+        
+        <div class="message" id="message" style="display: none;"></div>
+        
+        <div class="score-container">
+            <div class="score-item">
+                <div class="score-label">Score</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Correct</div>
+                <div class="score-value" id="correct">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Accuracy</div>
+                <div class="score-value" id="accuracy">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const colorMixes = [
+            // Primary color mixes
+            { color1: '#FF0000', color2: '#0000FF', result: '#FF00FF', name1: 'Red', name2: 'Blue', resultName: 'Purple' },
+            { color1: '#FF0000', color2: '#FFFF00', result: '#FFA500', name1: 'Red', name2: 'Yellow', resultName: 'Orange' },
+            { color1: '#0000FF', color2: '#FFFF00', result: '#00FF00', name1: 'Blue', name2: 'Yellow', resultName: 'Green' },
+            
+            // Secondary color mixes
+            { color1: '#FF00FF', color2: '#FFFF00', result: '#FF8080', name1: 'Purple', name2: 'Yellow', resultName: 'Pink' },
+            { color1: '#00FF00', color2: '#0000FF', result: '#00FFFF', name1: 'Green', name2: 'Blue', resultName: 'Cyan' },
+            { color1: '#FFA500', color2: '#FF0000', result: '#FF4500', name1: 'Orange', name2: 'Red', resultName: 'Red-Orange' },
+            
+            // More complex mixes
+            { color1: '#FF1493', color2: '#00CED1', result: '#7B68EE', name1: 'Deep Pink', name2: 'Dark Turquoise', resultName: 'Medium Slate Blue' },
+            { color1: '#32CD32', color2: '#FFD700', result: '#ADFF2F', name1: 'Lime Green', name2: 'Gold', resultName: 'Green Yellow' },
+            { color1: '#FF69B4', color2: '#00BFFF', result: '#DDA0DD', name1: 'Hot Pink', name2: 'Deep Sky Blue', resultName: 'Plum' }
+        ];
+
+        let currentMix = {};
+        let selectedColor = null;
+        let score = 0;
+        let correctAnswers = 0;
+        let totalAttempts = 0;
+        let level = 1;
+
+        function generateRandomColor() {
+            const r = Math.floor(Math.random() * 256);
+            const g = Math.floor(Math.random() * 256);
+            const b = Math.floor(Math.random() * 256);
+            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        }
+
+        function generateColorOptions() {
+            const options = [currentMix.result];
+            
+            // Add random colors as distractors
+            while (options.length < 6) {
+                const randomColor = generateRandomColor();
+                if (!options.includes(randomColor)) {
+                    options.push(randomColor);
+                }
+            }
+            
+            // Shuffle options
+            for (let i = options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [options[i], options[j]] = [options[j], options[i]];
+            }
+            
+            return options;
+        }
+
+        function newRound() {
+            // Select random mix based on level
+            const availableMixes = level === 1 ? colorMixes.slice(0, 3) : colorMixes;
+            currentMix = availableMixes[Math.floor(Math.random() * availableMixes.length)];
+            
+            // Display the colors
+            const color1El = document.getElementById('color1');
+            const color2El = document.getElementById('color2');
+            
+            color1El.style.background = currentMix.color1;
+            color1El.textContent = currentMix.name1;
+            
+            color2El.style.background = currentMix.color2;
+            color2El.textContent = currentMix.name2;
+            
+            // Generate and display options
+            const options = generateColorOptions();
+            const optionsContainer = document.getElementById('colorOptions');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(color => {
+                const option = document.createElement('div');
+                option.className = 'color-option';
+                option.style.background = color;
+                option.onclick = () => selectColor(color, option);
+                optionsContainer.appendChild(option);
+            });
+            
+            // Reset selection
+            selectedColor = null;
+            document.getElementById('message').style.display = 'none';
+            
+            // Set target color (hidden for now)
+            document.getElementById('targetColor').style.background = '#ddd';
+        }
+
+        function selectColor(color, element) {
+            // Remove previous selection
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Add selection to clicked element
+            element.classList.add('selected');
+            selectedColor = color;
+        }
+
+        function checkAnswer() {
+            if (!selectedColor) {
+                alert('Please select a color!');
+                return;
+            }
+            
+            totalAttempts++;
+            const messageEl = document.getElementById('message');
+            
+            if (selectedColor === currentMix.result) {
+                correctAnswers++;
+                score += level * 10;
+                
+                messageEl.textContent = `Correct! ${currentMix.name1} + ${currentMix.name2} = ${currentMix.resultName}`;
+                messageEl.className = 'message correct';
+                
+                // Show the correct result
+                document.getElementById('targetColor').style.background = currentMix.result;
+                
+                // Level up every 3 correct answers
+                if (correctAnswers % 3 === 0 && level < 3) {
+                    level++;
+                    document.getElementById('level').textContent = level;
+                }
+                
+                setTimeout(newRound, 2000);
+            } else {
+                messageEl.textContent = `Incorrect! Try again.`;
+                messageEl.className = 'message incorrect';
+            }
+            
+            messageEl.style.display = 'block';
+            updateScores();
+        }
+
+        function updateScores() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('correct').textContent = correctAnswers;
+            const accuracy = totalAttempts > 0 ? Math.round((correctAnswers / totalAttempts) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        // Initialize game
+        newRound();
+    </script>
+</body>
+</html>

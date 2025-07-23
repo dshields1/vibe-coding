@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortune Cookie Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-selector {
+            margin-bottom: 30px;
+        }
+
+        .category-selector label {
+            color: #555;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .category-selector select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            background: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .fortune-cookie {
+            width: 200px;
+            height: 150px;
+            margin: 30px auto;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .fortune-cookie:hover {
+            transform: scale(1.05);
+        }
+
+        .cookie-half {
+            width: 100px;
+            height: 150px;
+            background: linear-gradient(45deg, #deb887, #d2691e);
+            border-radius: 50px 50px 20px 20px;
+            position: absolute;
+            border: 3px solid #8b4513;
+            transition: all 0.5s ease;
+        }
+
+        .cookie-left {
+            left: 0;
+            transform-origin: right center;
+        }
+
+        .cookie-right {
+            right: 0;
+            transform-origin: left center;
+        }
+
+        .cookie-opened .cookie-left {
+            transform: rotateY(-45deg);
+        }
+
+        .cookie-opened .cookie-right {
+            transform: rotateY(45deg);
+        }
+
+        .fortune-paper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 250px;
+            z-index: 10;
+            transition: all 0.5s ease;
+        }
+
+        .cookie-opened .fortune-paper {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+
+        .fortune-display {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-style: italic;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .lucky-numbers {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .history-section {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .history-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-item-category {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .share-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .share-popup.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .share-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .share-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .share-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .share-twitter {
+            background: #1da1f2;
+            color: white;
+        }
+
+        .share-facebook {
+            background: #4267b2;
+            color: white;
+        }
+
+        .share-copy {
+            background: #28a745;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 200px;
+            }
+
+            .fortune-cookie {
+                width: 150px;
+                height: 120px;
+            }
+
+            .cookie-half {
+                width: 75px;
+                height: 120px;
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: sparkle 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fortune Cookie Generator</h1>
+        
+        <div class="category-selector">
+            <label for="category">Choose Category:</label>
+            <select id="category">
+                <option value="all">All Categories</option>
+                <option value="wisdom">Wisdom</option>
+                <option value="love">Love</option>
+                <option value="success">Success</option>
+                <option value="humor">Humor</option>
+            </select>
+        </div>
+
+        <div class="fortune-cookie" id="fortuneCookie">
+            <div class="cookie-half cookie-left"></div>
+            <div class="cookie-half cookie-right"></div>
+            <div class="fortune-paper" id="fortunePaper">
+                <div id="fortuneText">Click the cookie to reveal your fortune!</div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn" id="openCookie">Open Cookie</button>
+            <button class="btn btn-secondary" id="newFortune">New Fortune</button>
+            <button class="btn btn-success" id="shareFortune">Share Fortune</button>
+        </div>
+
+        <div class="fortune-display" id="fortuneDisplay">
+            Your fortune awaits... Click the cookie or "Open Cookie" button!
+        </div>
+
+        <div class="lucky-numbers" id="luckyNumbers">
+            Lucky Numbers: Click "New Fortune" to generate!
+        </div>
+
+        <div class="history-section">
+            <h3>Fortune History</h3>
+            <div class="history-list" id="historyList">
+                <p style="text-align: center; color: #999;">No fortunes yet. Start by opening a cookie!</p>
+            </div>
+            <button class="btn" id="clearHistory" style="margin-top: 15px; width: 100%;">Clear History</button>
+        </div>
+    </div>
+
+    <!-- Share Popup -->
+    <div class="share-overlay" id="shareOverlay"></div>
+    <div class="share-popup" id="sharePopup">
+        <button class="close-btn" id="closeShare">&times;</button>
+        <h3>Share Your Fortune</h3>
+        <p id="shareText"></p>
+        <div class="share-buttons">
+            <button class="share-btn share-twitter" id="shareTwitter">Twitter</button>
+            <button class="share-btn share-facebook" id="shareFacebook">Facebook</button>
+            <button class="share-btn share-copy" id="shareCopy">Copy</button>
+        </div>
+    </div>
+
+    <script>
+        class FortuneGenerator {
+            constructor() {
+                this.fortunes = {
+                    wisdom: [
+                        "A journey of a thousand miles begins with a single step.",
+                        "The best time to plant a tree was 20 years ago. The second best time is now.",
+                        "Wisdom is not a product of schooling but of the lifelong attempt to acquire it.",
+                        "The only true wisdom is in knowing you know nothing.",
+                        "Yesterday is history, tomorrow is a mystery, today is a gift.",
+                        "A wise person learns from the mistakes of others.",
+                        "The mind is everything. What you think you become.",
+                        "Knowledge speaks, but wisdom listens.",
+                        "It is better to remain silent and be thought a fool than to speak and remove all doubt.",
+                        "The only way to do great work is to love what you do."
+                    ],
+                    love: [
+                        "Love is not about possession, it's about appreciation.",
+                        "The greatest happiness of life is the conviction that we are loved.",
+                        "Where there is love, there is life.",
+                        "Love yourself first and everything else falls into line.",
+                        "The best and most beautiful things cannot be seen or touched, they must be felt with the heart.",
+                        "Love is composed of a single soul inhabiting two bodies.",
+                        "To love and be loved is to feel the sun from both sides.",
+                        "Love is the bridge between two hearts.",
+                        "In the arithmetic of love, one plus one equals everything.",
+                        "Love is not finding someone to live with, it's finding someone you can't live without."
+                    ],
+                    success: [
+                        "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+                        "The way to get started is to quit talking and begin doing.",
+                        "Don't be afraid to give up the good to go for the great.",
+                        "Innovation distinguishes between a leader and a follower.",
+                        "Success is walking from failure to failure with no loss of enthusiasm.",
+                        "The only impossible journey is the one you never begin.",
+                        "Opportunities don't happen. You create them.",
+                        "Success is not the key to happiness. Happiness is the key to success.",
+                        "The future belongs to those who believe in the beauty of their dreams.",
+                        "Your limitation—it's only your imagination."
+                    ],
+                    humor: [
+                        "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+                        "Why don't scientists trust atoms? Because they make up everything!",
+                        "I'm reading a book about anti-gravity. It's impossible to put down!",
+                        "Did you hear about the mathematician who's afraid of negative numbers? He'll stop at nothing to avoid them.",
+                        "I haven't slept for ten days, because that would be too long.",
+                        "I used to hate facial hair, but then it grew on me.",
+                        "Why don't eggs tell jokes? They'd crack each other up!",
+                        "I'm terrified of elevators, so I'm going to start taking steps to avoid them.",
+                        "What do you call a bear with no teeth? A gummy bear!",
+                        "I wondered why the baseball kept getting bigger. Then it hit me."
+                    ]
+                };
+                
+                this.currentFortune = '';
+                this.currentCategory = 'all';
+                this.history = this.loadHistory();
+                this.isOpen = false;
+                
+                this.initializeElements();
+                this.bindEvents();
+            }
+
+            initializeElements() {
+                this.cookie = document.getElementById('fortuneCookie');
+                this.fortunePaper = document.getElementById('fortunePaper');
+                this.fortuneText = document.getElementById('fortuneText');
+                this.fortuneDisplay = document.getElementById('fortuneDisplay');
+                this.luckyNumbers = document.getElementById('luckyNumbers');
+                this.categorySelect = document.getElementById('category');
+                this.historyList = document.getElementById('historyList');
+                
+                // Buttons
+                this.openBtn = document.getElementById('openCookie');
+                this.newFortuneBtn = document.getElementById('newFortune');
+                this.shareBtn = document.getElementById('shareFortune');
+                this.clearHistoryBtn = document.getElementById('clearHistory');
+                
+                // Share popup
+                this.shareOverlay = document.getElementById('shareOverlay');
+                this.sharePopup = document.getElementById('sharePopup');
+                this.shareText = document.getElementById('shareText');
+                this.closeShareBtn = document.getElementById('closeShare');
+                this.shareTwitterBtn = document.getElementById('shareTwitter');
+                this.shareFacebookBtn = document.getElementById('shareFacebook');
+                this.shareCopyBtn = document.getElementById('shareCopy');
+            }
+
+            bindEvents() {
+                this.cookie.addEventListener('click', () => this.handleCookieClick());
+                this.openBtn.addEventListener('click', () => this.handleCookieClick());
+                this.newFortuneBtn.addEventListener('click', () => this.generateNewFortune());
+                this.shareBtn.addEventListener('click', () => this.showSharePopup());
+                this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+                this.categorySelect.addEventListener('change', (e) => this.setCategory(e.target.value));
+                
+                // Share popup events
+                this.shareOverlay.addEventListener('click', () => this.hideSharePopup());
+                this.closeShareBtn.addEventListener('click', () => this.hideSharePopup());
+                this.shareTwitterBtn.addEventListener('click', () => this.shareToTwitter());
+                this.shareFacebookBtn.addEventListener('click', () => this.shareToFacebook());
+                this.shareCopyBtn.addEventListener('click', () => this.copyToClipboard());
+            }
+
+            handleCookieClick() {
+                if (!this.isOpen) {
+                    this.openCookie();
+                } else {
+                    this.generateNewFortune();
+                }
+            }
+
+            openCookie() {
+                if (this.isOpen) return;
+                
+                this.cookie.classList.add('shake');
+                
+                setTimeout(() => {
+                    this.cookie.classList.remove('shake');
+                    this.cookie.classList.add('cookie-opened');
+                    this.isOpen = true;
+                    
+                    if (!this.currentFortune) {
+                        this.generateFortune();
+                    }
+                    
+                    this.addSparkles();
+                    this.openBtn.textContent = 'Generate New';
+                }, 500);
+            }
+
+            closeCookie() {
+                this.cookie.classList.remove('cookie-opened');
+                this.isOpen = false;
+                this.openBtn.textContent = 'Open Cookie';
+                this.removeSparkles();
+            }
+
+            generateNewFortune() {
+                this.closeCookie();
+                
+                setTimeout(() => {
+                    this.generateFortune();
+                    this.openCookie();
+                }, 300);
+            }
+
+            generateFortune() {
+                const category = this.currentCategory;
+                let fortunePool = [];
+                
+                if (category === 'all') {
+                    fortunePool = Object.values(this.fortunes).flat();
+                } else {
+                    fortunePool = this.fortunes[category] || [];
+                }
+                
+                if (fortunePool.length === 0) {
+                    this.currentFortune = "Your fortune is being prepared...";
+                } else {
+                    this.currentFortune = fortunePool[Math.floor(Math.random() * fortunePool.length)];
+                }
+                
+                this.fortuneText.textContent = this.currentFortune;
+                this.fortuneDisplay.textContent = this.currentFortune;
+                
+                this.generateLuckyNumbers();
+                this.addToHistory();
+            }
+
+            generateLuckyNumbers() {
+                const numbers = [];
+                while (numbers.length < 6) {
+                    const num = Math.floor(Math.random() * 50) + 1;
+                    if (!numbers.includes(num)) {
+                        numbers.push(num);
+                    }
+                }
+                numbers.sort((a, b) => a - b);
+                this.luckyNumbers.textContent = `Lucky Numbers: ${numbers.join(', ')}`;
+            }
+
+            setCategory(category) {
+                this.currentCategory = category;
+                if (this.isOpen) {
+                    this.generateFortune();
+                }
+            }
+
+            addToHistory() {
+                const historyItem = {
+                    fortune: this.currentFortune,
+                    category: this.currentCategory,
+                    timestamp: new Date().toLocaleString()
+                };
+                
+                this.history.unshift(historyItem);
+                if (this.history.length > 50) {
+                    this.history.pop();
+                }
+                
+                this.saveHistory();
+                this.renderHistory();
+            }
+
+            renderHistory() {
+                if (this.history.length === 0) {
+                    this.historyList.innerHTML = '<p style="text-align: center; color: #999;">No fortunes yet. Start by opening a cookie!</p>';
+                    return;
+                }
+                
+                this.historyList.innerHTML = this.history.map(item => `
+                    <div class="history-item">
+                        <div class="history-item-category">${item.category === 'all' ? 'Mixed' : item.category}</div>
+                        <div>${item.fortune}</div>
+                        <small style="color: #999;">${item.timestamp}</small>
+                    </div>
+                `).join('');
+            }
+
+            clearHistory() {
+                if (confirm('Are you sure you want to clear your fortune history?')) {
+                    this.history = [];
+                    this.saveHistory();
+                    this.renderHistory();
+                }
+            }
+
+            saveHistory() {
+                localStorage.setItem('fortuneHistory', JSON.stringify(this.history));
+            }
+
+            loadHistory() {
+                try {
+                    return JSON.parse(localStorage.getItem('fortuneHistory') || '[]');
+                } catch {
+                    return [];
+                }
+            }
+
+            showSharePopup() {
+                if (!this.currentFortune || this.currentFortune === "Your fortune awaits... Click the cookie or \"Open Cookie\" button!") {
+                    alert('Please generate a fortune first!');
+                    return;
+                }
+                
+                this.shareText.textContent = this.currentFortune;
+                this.shareOverlay.classList.add('active');
+                this.sharePopup.classList.add('active');
+            }
+
+            hideSharePopup() {
+                this.shareOverlay.classList.remove('active');
+                this.sharePopup.classList.remove('active');
+            }
+
+            shareToTwitter() {
+                const text = encodeURIComponent(`"${this.currentFortune}" - Fortune Cookie Generator`);
+                const url = `https://twitter.com/intent/tweet?text=${text}`;
+                window.open(url, '_blank');
+            }
+
+            shareToFacebook() {
+                const text = encodeURIComponent(`"${this.currentFortune}" - Fortune Cookie Generator`);
+                const url = `https://www.facebook.com/sharer/sharer.php?quote=${text}`;
+                window.open(url, '_blank');
+            }
+
+            async copyToClipboard() {
+                try {
+                    await navigator.clipboard.writeText(`"${this.currentFortune}" - Fortune Cookie Generator`);
+                    this.shareCopyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.shareCopyBtn.textContent = 'Copy';
+                    }, 2000);
+                } catch (err) {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = `"${this.currentFortune}" - Fortune Cookie Generator`;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    this.shareCopyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.shareCopyBtn.textContent = 'Copy';
+                    }, 2000);
+                }
+            }
+
+            addSparkles() {
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.className = 'sparkle';
+                        sparkle.style.left = Math.random() * 100 + '%';
+                        sparkle.style.top = Math.random() * 100 + '%';
+                        sparkle.style.animationDelay = Math.random() * 0.5 + 's';
+                        
+                        this.cookie.appendChild(sparkle);
+                        
+                        setTimeout(() => {
+                            if (sparkle.parentNode) {
+                                sparkle.parentNode.removeChild(sparkle);
+                            }
+                        }, 2000);
+                    }, i * 200);
+                }
+            }
+
+            removeSparkles() {
+                const sparkles = this.cookie.querySelectorAll('.sparkle');
+                sparkles.forEach(sparkle => {
+                    if (sparkle.parentNode) {
+                        sparkle.parentNode.removeChild(sparkle);
+                    }
+                });
+            }
+        }
+
+        // Initialize the fortune generator when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new FortuneGenerator();
+        });
+    </script>
+</body>
+</html>

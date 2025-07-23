@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to HTML Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(45deg, #4834d4, #686de0);
+        }
+
+        .btn.success {
+            background: linear-gradient(45deg, #00d2d3, #54a0ff);
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 200px);
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        #markdownInput {
+            flex: 1;
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: border-color 0.3s ease;
+        }
+
+        #markdownInput:focus {
+            border-color: #3498db;
+        }
+
+        .preview-panel {
+            overflow-y: auto;
+        }
+
+        #htmlOutput {
+            flex: 1;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            overflow-y: auto;
+        }
+
+        /* Markdown preview styles */
+        #htmlOutput h1, #htmlOutput h2, #htmlOutput h3, #htmlOutput h4, #htmlOutput h5, #htmlOutput h6 {
+            color: #2c3e50;
+            margin: 20px 0 10px 0;
+            line-height: 1.3;
+        }
+
+        #htmlOutput h1 { font-size: 2.2em; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        #htmlOutput h2 { font-size: 1.8em; border-bottom: 2px solid #95a5a6; padding-bottom: 8px; }
+        #htmlOutput h3 { font-size: 1.5em; }
+        #htmlOutput h4 { font-size: 1.3em; }
+        #htmlOutput h5 { font-size: 1.1em; }
+        #htmlOutput h6 { font-size: 1em; }
+
+        #htmlOutput p {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        #htmlOutput ul, #htmlOutput ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        #htmlOutput li {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        #htmlOutput blockquote {
+            border-left: 4px solid #3498db;
+            margin: 20px 0;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            font-style: italic;
+            color: #555;
+        }
+
+        #htmlOutput code {
+            background: #f1f2f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #e74c3c;
+        }
+
+        #htmlOutput pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        #htmlOutput pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        #htmlOutput a {
+            color: #3498db;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        #htmlOutput a:hover {
+            border-bottom-color: #3498db;
+        }
+
+        #htmlOutput table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        #htmlOutput th, #htmlOutput td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        #htmlOutput th {
+            background: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        #htmlOutput tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        #htmlOutput hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, #3498db, #9b59b6);
+            margin: 30px 0;
+            border-radius: 1px;
+        }
+
+        /* Syntax highlighting for code blocks */
+        .hljs {
+            background: #2c3e50 !important;
+            color: #ecf0f1 !important;
+        }
+
+        .hljs-keyword { color: #3498db; }
+        .hljs-string { color: #2ecc71; }
+        .hljs-number { color: #e67e22; }
+        .hljs-comment { color: #95a5a6; font-style: italic; }
+        .hljs-function { color: #f39c12; }
+        .hljs-variable { color: #e74c3c; }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+            
+            .panel {
+                min-height: 400px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Markdown to HTML Converter</h1>
+            <p>Type markdown on the left, see HTML preview on the right</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="clearAll()">Clear All</button>
+            <button class="btn secondary" onclick="copyHTML()">Copy HTML</button>
+            <button class="btn success" onclick="downloadHTML()">Download HTML</button>
+        </div>
+
+        <div class="editor-container">
+            <div class="panel">
+                <div class="panel-header">Markdown Input</div>
+                <textarea id="markdownInput" placeholder="Type your markdown here...
+
+# Welcome to Markdown Converter!
+
+This is a **live preview** markdown converter. Type your markdown on the left and see the HTML output on the right.
+
+## Features
+- Live preview
+- Syntax highlighting
+- Copy HTML output
+- Download as HTML file
+- Responsive design
+
+### Example Code Block
+```javascript
+function hello() {
+    console.log('Hello, World!');
+}
+```
+
+> This is a blockquote with some *italic* and **bold** text.
+
+1. Ordered list item 1
+2. Ordered list item 2
+   - Nested unordered item
+   - Another nested item
+
+- [x] Task completed
+- [ ] Task pending
+
+| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| Cell 1   | Cell 2   | Cell 3   |
+| Cell 4   | Cell 5   | Cell 6   |
+
+---
+
+[Visit Google](https://google.com)
+
+`inline code` and normal text."></textarea>
+            </div>
+
+            <div class="panel preview-panel">
+                <div class="panel-header">HTML Preview</div>
+                <div id="htmlOutput"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Markdown to HTML converter
+        class MarkdownConverter {
+            constructor() {
+                this.setupEventListeners();
+                this.convertMarkdown(); // Initial conversion
+            }
+
+            setupEventListeners() {
+                const input = document.getElementById('markdownInput');
+                input.addEventListener('input', () => this.convertMarkdown());
+                input.addEventListener('keydown', this.handleTabKey.bind(this));
+            }
+
+            handleTabKey(e) {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = e.target.selectionStart;
+                    const end = e.target.selectionEnd;
+                    const value = e.target.value;
+                    e.target.value = value.substring(0, start) + '    ' + value.substring(end);
+                    e.target.selectionStart = e.target.selectionEnd = start + 4;
+                }
+            }
+
+            convertMarkdown() {
+                const markdown = document.getElementById('markdownInput').value;
+                const html = this.parseMarkdown(markdown);
+                document.getElementById('htmlOutput').innerHTML = html;
+                this.highlightCode();
+            }
+
+            parseMarkdown(markdown) {
+                let html = markdown;
+
+                // Headers
+                html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+                html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+                html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+                html = html.replace(/^#### (.*$)/gim, '<h4>$1</h4>');
+                html = html.replace(/^##### (.*$)/gim, '<h5>$1</h5>');
+                html = html.replace(/^###### (.*$)/gim, '<h6>$1</h6>');
+
+                // Bold and Italic
+                html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                html = html.replace(/\_\_\_(.*?)\_\_\_/g, '<strong><em>$1</em></strong>');
+                html = html.replace(/\_\_(.*?)\_\_/g, '<strong>$1</strong>');
+                html = html.replace(/\_(.*?)\_/g, '<em>$1</em>');
+
+                // Code blocks
+                html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+                html = html.replace(/`([^`]*)`/g, '<code>$1</code>');
+
+                // Links
+                html = html.replace(/\[([^\]]*)\]\(([^\)]*)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+                // Images
+                html = html.replace(/!\[([^\]]*)\]\(([^\)]*)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; height: auto;">');
+
+                // Horizontal rules
+                html = html.replace(/^---$/gm, '<hr>');
+                html = html.replace(/^\*\*\*$/gm, '<hr>');
+
+                // Blockquotes
+                html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
+
+                // Tables
+                html = this.parseTables(html);
+
+                // Task lists
+                html = html.replace(/^- \[x\] (.*$)/gim, '<ul><li style="list-style: none;"><input type="checkbox" checked disabled> $1</li></ul>');
+                html = html.replace(/^- \[ \] (.*$)/gim, '<ul><li style="list-style: none;"><input type="checkbox" disabled> $1</li></ul>');
+
+                // Unordered lists
+                html = html.replace(/^\* (.*$)/gim, '<ul><li>$1</li></ul>');
+                html = html.replace(/^- (.*$)/gim, '<ul><li>$1</li></ul>');
+
+                // Ordered lists
+                html = html.replace(/^\d+\. (.*$)/gim, '<ol><li>$1</li></ol>');
+
+                // Fix nested lists
+                html = html.replace(/<\/ul>\s*<ul>/g, '');
+                html = html.replace(/<\/ol>\s*<ol>/g, '');
+
+                // Paragraphs
+                html = html.replace(/\n\n/g, '</p><p>');
+                html = '<p>' + html + '</p>';
+
+                // Clean up empty paragraphs
+                html = html.replace(/<p><\/p>/g, '');
+                html = html.replace(/<p>(<h[1-6]>.*<\/h[1-6]>)<\/p>/g, '$1');
+                html = html.replace(/<p>(<ul>.*<\/ul>)<\/p>/g, '$1');
+                html = html.replace(/<p>(<ol>.*<\/ol>)<\/p>/g, '$1');
+                html = html.replace(/<p>(<blockquote>.*<\/blockquote>)<\/p>/g, '$1');
+                html = html.replace(/<p>(<pre>.*<\/pre>)<\/p>/g, '$1');
+                html = html.replace(/<p>(<hr>)<\/p>/g, '$1');
+
+                // Line breaks
+                html = html.replace(/\n/g, '<br>');
+
+                return html;
+            }
+
+            parseTables(html) {
+                const lines = html.split('\n');
+                let inTable = false;
+                let tableHTML = '';
+                let result = [];
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    if (line.includes('|') && line.split('|').length > 2) {
+                        if (!inTable) {
+                            inTable = true;
+                            tableHTML = '<table>';
+                            
+                            // Check if next line is separator
+                            if (i + 1 < lines.length && lines[i + 1].includes('---')) {
+                                // Header row
+                                const cells = line.split('|').map(cell => cell.trim()).filter(cell => cell);
+                                tableHTML += '<thead><tr>';
+                                cells.forEach(cell => {
+                                    tableHTML += `<th>${cell}</th>`;
+                                });
+                                tableHTML += '</tr></thead><tbody>';
+                                i++; // Skip separator line
+                            } else {
+                                // Regular row
+                                tableHTML += '<tbody>';
+                                const cells = line.split('|').map(cell => cell.trim()).filter(cell => cell);
+                                tableHTML += '<tr>';
+                                cells.forEach(cell => {
+                                    tableHTML += `<td>${cell}</td>`;
+                                });
+                                tableHTML += '</tr>';
+                            }
+                        } else {
+                            // Continuation of table
+                            const cells = line.split('|').map(cell => cell.trim()).filter(cell => cell);
+                            tableHTML += '<tr>';
+                            cells.forEach(cell => {
+                                tableHTML += `<td>${cell}</td>`;
+                            });
+                            tableHTML += '</tr>';
+                        }
+                    } else {
+                        if (inTable) {
+                            tableHTML += '</tbody></table>';
+                            result.push(tableHTML);
+                            inTable = false;
+                            tableHTML = '';
+                        }
+                        result.push(line);
+                    }
+                }
+
+                if (inTable) {
+                    tableHTML += '</tbody></table>';
+                    result.push(tableHTML);
+                }
+
+                return result.join('\n');
+            }
+
+            highlightCode() {
+                const codeBlocks = document.querySelectorAll('#htmlOutput pre code');
+                codeBlocks.forEach(block => {
+                    this.applySyntaxHighlighting(block);
+                });
+            }
+
+            applySyntaxHighlighting(block) {
+                const code = block.textContent;
+                let highlighted = code;
+
+                // JavaScript/General syntax highlighting
+                highlighted = highlighted.replace(/\b(function|var|let|const|if|else|for|while|return|class|extends|import|export|from|default)\b/g, '<span class="hljs-keyword">$1</span>');
+                highlighted = highlighted.replace(/(["'])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="hljs-string">$1$2$1</span>');
+                highlighted = highlighted.replace(/\b(\d+\.?\d*)\b/g, '<span class="hljs-number">$1</span>');
+                highlighted = highlighted.replace(/(\/\/.*$|\/\*[\s\S]*?\*\/)/gm, '<span class="hljs-comment">$1</span>');
+                highlighted = highlighted.replace(/\b(\w+)(?=\s*\()/g, '<span class="hljs-function">$1</span>');
+
+                block.innerHTML = highlighted;
+                block.classList.add('hljs');
+            }
+        }
+
+        // Utility functions
+        function clearAll() {
+            document.getElementById('markdownInput').value = '';
+            document.getElementById('htmlOutput').innerHTML = '';
+        }
+
+        function copyHTML() {
+            const htmlContent = document.getElementById('htmlOutput').innerHTML;
+            navigator.clipboard.writeText(htmlContent).then(() => {
+                showToast('HTML copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = htmlContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('HTML copied to clipboard!');
+            });
+        }
+
+        function downloadHTML() {
+            const htmlContent = document.getElementById('htmlOutput').innerHTML;
+            const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Converted from Markdown</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1, h2, h3, h4, h5, h6 { color: #2c3e50; margin: 20px 0 10px 0; }
+        h1 { font-size: 2.2em; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { font-size: 1.8em; border-bottom: 2px solid #95a5a6; padding-bottom: 8px; }
+        code { background: #f1f2f6; padding: 2px 6px; border-radius: 4px; color: #e74c3c; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 8px; overflow-x: auto; }
+        pre code { background: none; color: inherit; padding: 0; }
+        blockquote { border-left: 4px solid #3498db; margin: 20px 0; padding: 15px 20px; background: #f8f9fa; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: #3498db; color: white; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+${htmlContent}
+</body>
+</html>`;
+
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted-markdown.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('HTML file downloaded!');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize the converter when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new MarkdownConverter();
+        });
+    </script>
+</body>
+</html>

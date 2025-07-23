@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Wheel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .wheel {
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 8px solid #333;
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            word-break: break-word;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #ff6b6b;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #333, #555);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .option-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+
+        .option-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .option-text {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .remove-option {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-option:hover {
+            background: #ee5a6f;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spin-button {
+            font-size: 20px;
+            padding: 15px 30px;
+            margin: 20px 0;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(45deg, #51cf66, #40c057);
+            color: white;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            display: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result.show {
+            display: block;
+            animation: resultPop 0.5s ease-out;
+        }
+
+        @keyframes resultPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .preset-buttons button {
+            padding: 8px 12px;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .wheel {
+                width: 300px;
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .wheel {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .wheel-segment {
+                font-size: 12px;
+                padding: 5px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Decision Wheel</h1>
+        
+        <div class="content">
+            <div class="wheel-container">
+                <div class="wheel-wrapper">
+                    <div class="pointer"></div>
+                    <div class="wheel" id="wheel"></div>
+                    <div class="center-circle"></div>
+                </div>
+                
+                <button class="btn-primary spin-button" id="spinButton" onclick="spinWheel()">
+                    🎲 SPIN THE WHEEL
+                </button>
+                
+                <div class="result" id="result"></div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <h3>Add Options</h3>
+                    <label for="newOption">New Option:</label>
+                    <input type="text" id="newOption" placeholder="Enter an option..." maxlength="30">
+                    <div class="button-group">
+                        <button type="button" class="btn-success" onclick="addOption()">Add Option</button>
+                        <button type="button" class="btn-secondary" onclick="clearOptions()">Clear All</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Quick Add (Multiple Options)</h3>
+                    <textarea id="multipleOptions" placeholder="Enter multiple options separated by new lines..."></textarea>
+                    <button type="button" class="btn-primary" onclick="addMultipleOptions()">Add All Options</button>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Preset Options</h3>
+                    <div class="preset-buttons">
+                        <button type="button" class="btn-secondary" onclick="loadPreset('yesno')">Yes/No</button>
+                        <button type="button" class="btn-secondary" onclick="loadPreset('food')">Food</button>
+                        <button type="button" class="btn-secondary" onclick="loadPreset('activities')">Activities</button>
+                        <button type="button" class="btn-secondary" onclick="loadPreset('colors')">Colors</button>
+                        <button type="button" class="btn-secondary" onclick="loadPreset('numbers')">Numbers</button>
+                        <button type="button" class="btn-secondary" onclick="loadPreset('movies')">Movies</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Current Options (<span id="optionCount">0</span>)</h3>
+                    <div class="option-list" id="optionList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let options = [];
+        let isSpinning = false;
+
+        const presets = {
+            yesno: ['Yes', 'No'],
+            food: ['Pizza', 'Burger', 'Sushi', 'Tacos', 'Pasta', 'Salad', 'Chinese', 'Indian'],
+            activities: ['Movie', 'Walk', 'Exercise', 'Read', 'Game', 'Cook', 'Music', 'Art'],
+            colors: ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange', 'Pink', 'Cyan'],
+            numbers: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+            movies: ['Comedy', 'Action', 'Horror', 'Romance', 'Sci-Fi', 'Drama', 'Thriller', 'Animation']
+        };
+
+        const segmentColors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+            '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
+            '#F8C471', '#82E0AA', '#F1948A', '#85C1E9', '#F4D03F',
+            '#AED6F1', '#A9DFBF', '#F5B7B1', '#D7BDE2', '#A3E4D7'
+        ];
+
+        function addOption() {
+            const input = document.getElementById('newOption');
+            const option = input.value.trim();
+            
+            if (option && !options.includes(option)) {
+                options.push(option);
+                input.value = '';
+                updateWheel();
+                updateOptionList();
+            }
+        }
+
+        function addMultipleOptions() {
+            const textarea = document.getElementById('multipleOptions');
+            const newOptions = textarea.value.split('\n')
+                .map(option => option.trim())
+                .filter(option => option && !options.includes(option));
+            
+            options.push(...newOptions);
+            textarea.value = '';
+            updateWheel();
+            updateOptionList();
+        }
+
+        function removeOption(index) {
+            options.splice(index, 1);
+            updateWheel();
+            updateOptionList();
+        }
+
+        function clearOptions() {
+            options = [];
+            updateWheel();
+            updateOptionList();
+            document.getElementById('result').classList.remove('show');
+        }
+
+        function loadPreset(type) {
+            options = [...presets[type]];
+            updateWheel();
+            updateOptionList();
+        }
+
+        function updateOptionList() {
+            const list = document.getElementById('optionList');
+            const count = document.getElementById('optionCount');
+            
+            count.textContent = options.length;
+            list.innerHTML = '';
+            
+            options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option-item';
+                div.innerHTML = `
+                    <span class="option-text">${option}</span>
+                    <button class="remove-option" onclick="removeOption(${index})">×</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function updateWheel() {
+            const wheel = document.getElementById('wheel');
+            const spinButton = document.getElementById('spinButton');
+            
+            wheel.innerHTML = '';
+            
+            if (options.length === 0) {
+                spinButton.disabled = true;
+                return;
+            }
+            
+            spinButton.disabled = false;
+            
+            const angleStep = 360 / options.length;
+            
+            options.forEach((option, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'wheel-segment';
+                segment.style.background = segmentColors[index % segmentColors.length];
+                segment.style.transform = `rotate(${index * angleStep}deg)`;
+                segment.textContent = option;
+                
+                // Adjust text orientation for better readability
+                if (index * angleStep > 90 && index * angleStep < 270) {
+                    segment.style.transform += ' scaleX(-1) scaleY(-1)';
+                }
+                
+                wheel.appendChild(segment);
+            });
+        }
+
+        function spinWheel() {
+            if (options.length === 0 || isSpinning) return;
+            
+            isSpinning = true;
+            const wheel = document.getElementById('wheel');
+            const spinButton = document.getElementById('spinButton');
+            const result = document.getElementById('result');
+            
+            spinButton.disabled = true;
+            result.classList.remove('show');
+            
+            // Random spin: 3-5 full rotations plus random angle
+            const spins = 3 + Math.random() * 2;
+            const finalAngle = Math.random() * 360;
+            const totalRotation = spins * 360 + finalAngle;
+            
+            // Apply rotation
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            
+            // Calculate winning option
+            const normalizedAngle = (360 - (totalRotation % 360)) % 360;
+            const segmentAngle = 360 / options.length;
+            const winningIndex = Math.floor(normalizedAngle / segmentAngle);
+            const winner = options[winningIndex];
+            
+            // Show result after animation
+            setTimeout(() => {
+                result.textContent = `🎉 ${winner} 🎉`;
+                result.classList.add('show');
+                spinButton.disabled = false;
+                isSpinning = false;
+            }, 4000);
+        }
+
+        // Event listeners
+        document.getElementById('newOption').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addOption();
+            }
+        });
+
+        // Initialize with default options
+        window.addEventListener('load', () => {
+            loadPreset('yesno');
+        });
+    </script>
+</body>
+</html>
