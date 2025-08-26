@@ -3,65 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vibe Coding</title>
+    <title>Anthropic Futures Forum - Everyone is a Developer</title>
     <style>
+        /* Font Face Declarations */
+        @font-face {
+            font-family: 'Copernicus';
+            src: url('fonts/Copernicus/Copernicus-Book.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Copernicus';
+            src: url('fonts/Copernicus/Copernicus-BookItalic.otf') format('opentype');
+            font-weight: normal;
+            font-style: italic;
+        }
+        @font-face {
+            font-family: 'Copernicus';
+            src: url('fonts/Copernicus/Copernicus-Semibold.otf') format('opentype');
+            font-weight: 600;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Styrene A';
+            src: url('fonts/Styrene A/StyreneALC-Medium.otf') format('opentype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Styrene A';
+            src: url('fonts/Styrene A/StyreneALC-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Styrene B';
+            src: url('fonts/Styrene B/StyreneBLC-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Styrene B';
+            src: url('fonts/Styrene B/StyreneBLC-Medium.otf') format('opentype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Tiempos Text';
+            src: url('fonts/Tiempos/TiemposText-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Tiempos Text';
+            src: url('fonts/Tiempos/TiemposText-Medium.otf') format('opentype');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        /* Anthropic/Claude Color Palette */
+        :root {
+            --ivory: #FAF9F5;
+            --slate: #141413;
+            --clay: #D97757;
+            --oat: #E3DACC;
+            --sky: #6A9BCC;
+            --olive: #788C5D;
+            --coral: #EBCECE;
+            --heather: #CBCADB;
+        }
+
+        /* Base Styles */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
+            font-family: 'Tiempos Text', Georgia, serif;
+            line-height: 1.4;
+            color: var(--slate);
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
+            padding: 0;
+            background: var(--ivory);
         }
-        h1 {
+
+        /* Hero Section */
+        .hero {
+            background: var(--slate);
+            color: var(--ivory);
+            padding: 80px 40px;
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 40px;
+            margin-bottom: 60px;
         }
+
+        .hero h1 {
+            font-family: 'Styrene A', Arial, sans-serif;
+            font-weight: 500;
+            font-size: 3.5rem;
+            margin: 0 0 20px 0;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        .hero .subtitle {
+            font-family: 'Copernicus', Georgia, serif;
+            font-weight: normal;
+            font-size: 1.8rem;
+            margin: 0;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .content {
+            padding: 0 40px 60px;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* Category Sections */
         .category {
-            margin-bottom: 40px;
+            margin-bottom: 60px;
         }
+
         h2 {
-            color: #34495e;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            font-family: 'Copernicus', Georgia, serif;
+            font-weight: normal;
+            color: var(--slate);
+            font-size: 2rem;
+            border-bottom: 2px solid var(--clay);
+            padding-bottom: 12px;
+            margin-bottom: 30px;
+            letter-spacing: -0.03em;
         }
+
+        /* Grid Layout */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
         }
+
+        /* Cards */
         .card {
             background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(20, 20, 19, 0.08);
             transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(20, 20, 19, 0.08);
         }
+
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(20, 20, 19, 0.12);
+            border-color: var(--clay);
         }
+
         .card a {
+            font-family: 'Styrene B', Arial, sans-serif;
+            font-weight: 500;
             text-decoration: none;
-            color: #3498db;
-            font-weight: bold;
+            color: var(--clay);
+            font-size: 1.1rem;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
         }
+
         .card a:hover {
-            color: #2980b9;
+            color: var(--slate);
         }
+
         .description {
-            color: #7f8c8d;
-            font-size: 14px;
+            font-family: 'Styrene B', Arial, sans-serif;
+            font-weight: normal;
+            color: var(--slate);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            opacity: 0.7;
         }
     </style>
 </head>
 <body>
-    <h1>Vibe Coding</h1>
+    <div class="hero">
+        <h1>Anthropic Futures Forum</h1>
+        <p class="subtitle">Everyone is a Developer - create a game or an app with Claude</p>
+    </div>
+    
+    <div class="content">
+        <p class="intro">Welcome to our interactive demo station! Explore the collection of games, utilities, and creative tools below, all created with the help of Claude.</p>
 
     <div class="category">
         <h2>Games</h2>
@@ -199,6 +336,7 @@
                 <p class="description">Check your daily horoscope</p>
             </div>
         </div>
+    </div>
     </div>
 </body>
 </html>
