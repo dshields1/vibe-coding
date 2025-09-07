@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        @font-face {
+            font-family: 'Styrene A';
+            src: url('fonts/Styrene A/StyreneALC-Medium.otf') format('opentype');
+            font-weight: 500;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Tiempos Text';
+            src: url('fonts/Tiempos/TiemposText-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --ivory: #FAF9F5;
+            --slate: #141413;
+            --clay: #D97757;
+            --oat: #E3DACC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tiempos Text', Georgia, serif;
+            background-color: var(--ivory);
+            color: var(--slate);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-family: 'Styrene A', Arial, sans-serif;
+            font-weight: 500;
+            font-size: 2rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-container {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 2px solid var(--oat);
+            border-radius: 8px;
+            background: white;
+            font-family: 'Tiempos Text', Georgia, serif;
+        }
+
+        input[type="url"]:focus {
+            outline: none;
+            border-color: var(--clay);
+        }
+
+        .qr-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(20, 20, 19, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 400px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        #qr-code {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .placeholder {
+            color: #999;
+            font-size: 1.1rem;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .error {
+            color: var(--clay);
+            font-size: 1rem;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Generator</h1>
+    
+    <div class="input-container">
+        <input type="url" id="url-input" placeholder="Enter a URL to generate QR code..." />
+    </div>
+    
+    <div class="qr-container">
+        <div id="qr-code">
+            <div class="placeholder">Enter a URL above to generate a QR code</div>
+        </div>
+        <div id="error-message" class="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('url-input');
+        const qrCodeDiv = document.getElementById('qr-code');
+        const errorDiv = document.getElementById('error-message');
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function generateQR(url) {
+            if (!url.trim()) {
+                qrCodeDiv.innerHTML = '<div class="placeholder">Enter a URL above to generate a QR code</div>';
+                errorDiv.style.display = 'none';
+                return;
+            }
+
+            if (!isValidUrl(url)) {
+                errorDiv.textContent = 'Please enter a valid URL';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            errorDiv.style.display = 'none';
+            
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=350x350&data=${encodeURIComponent(url)}`;
+            const img = document.createElement('img');
+            img.src = qrApiUrl;
+            img.style.width = '100%';
+            img.style.height = 'auto';
+            img.style.imageRendering = 'crisp-edges';
+            img.alt = 'QR Code';
+            
+            img.onload = function() {
+                qrCodeDiv.innerHTML = '';
+                qrCodeDiv.appendChild(img);
+            };
+            
+            img.onerror = function() {
+                errorDiv.textContent = 'Error generating QR code';
+                errorDiv.style.display = 'block';
+            };
+        }
+
+        // Handle input changes
+        urlInput.addEventListener('input', function() {
+            generateQR(this.value);
+        });
+
+        // Check for URL parameter on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const prefilledUrl = urlParams.get('url');
+            
+            if (prefilledUrl) {
+                urlInput.value = prefilledUrl;
+                generateQR(prefilledUrl);
+            }
+        });
+    </script>
+</body>
+</html>

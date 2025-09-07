@@ -58,3 +58,5 @@ All brand fonts are located in the `/fonts` directory with proper @font-face dec
 ## Important Instructions
 
 - **When creating new HTML files**: Always open them in the browser after creation using `open filename.html`
+- **When adding new games, utilities, or applications**: Always update the index.html homepage to include the new item in the appropriate category section
+- **After creating a new file**: Always tell the user the publicly accessible URL will be `https://dshields1.github.io/vibe-coding/[filename].html` (where [filename] is the actual name of the file created), and ask if they'd like to open a QR code that shows the URL. To show the QR code, open the local qr-generator.html file with a query parameter containing the public URL: `open qr-generator.html?url=https://dshields1.github.io/vibe-coding/[filename].html`
